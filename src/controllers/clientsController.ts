@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 // import { PrismaClient } from '../../node_modules/.prisma/client.ts';
 // import { PrismaClient } from '../../node_modules/.prisma/client/default.js';
 import { PrismaClient } from '@prisma/client';
@@ -42,12 +42,21 @@ export async function getClients(req: Request, res: Response): Promise<void> {
  * @param res {Response} - The Response object
  * @returns {Promise<void>}
  */
-export async function getClient(req: Request, res: Response): Promise<void> {
-  const id: number = parseInt(req.params.id);
-  const client: Client = await prisma.client.findUnique({
-    where: {
-      id: id
+export async function getClient(req: Request, res: Response, next: NextFunction): Promise<void> {
+ const id: number = parseInt(req.params.id);
+
+  try {
+    const client: Client = await prisma.client.findUnique({
+      where: {
+        id: id
+      }
+    });
+    console.log('client:', client);
+    if (!client) {
+      throw new Error('Client not found', { cause: 404 });
     }
-  });
-  res.status(200).send(client);
+    res.json({ success: true, client });
+  } catch (err) {
+    next(err); // forwards to error handler
+  }
 }

@@ -14,14 +14,16 @@ app.use(Express.urlencoded({ extended: true }));
 
 app.use('/', IndexRouter);
 
+// 404 catch-all handler (middleware)
 app.use((req: Request, res: Response, next: NextFunction) => {
   try {
-    //set header before response
-    res.status(404).send('Sorry can\'t find that! Please explore more troubleshooting options.');
+    throw new Error('Resource not found', { cause: 404 });
   } catch (err) {
     next(err);
   }
 });
+
+// Error handler (last) - implemented a custom error handler
 app.use(errorHandler);
 
 app.listen(port, () => {
