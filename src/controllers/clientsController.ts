@@ -1,9 +1,11 @@
-import { NextFunction, Request, Response } from 'express';
+import Express , { NextFunction, Request, Response } from 'express';
 // import { PrismaClient } from '../../node_modules/.prisma/client.ts';
 // import { PrismaClient } from '../../node_modules/.prisma/client/default.js';
 import { PrismaClient } from '@prisma/client';
 import { Client} from '../../prisma/types.ts';
+
 const prisma: PrismaClient = new PrismaClient();
+const clientsController = Express.Router();
 
 /**
  * Interface for the response object
@@ -18,12 +20,12 @@ interface ClientResponse {
 }
 
 /**
- * Function to get all people
+ * Route handling getting all owners
  * @param req {Request} - The Request object
  * @param res {Response} - The Response object
  * @returns {Promise<void>}
  */
-export async function getClients(req: Request, res: Response): Promise<void> {
+clientsController.get('/', async (req: Request, res: Response) => {
   const clients: Client[] = await prisma.client.findMany();
   const clientReponse: ClientResponse = {
     meta: {
@@ -34,16 +36,16 @@ export async function getClients(req: Request, res: Response): Promise<void> {
     data: clients
   };
   res.status(200).send(clientReponse);
-}
+})
 
 /**
- * Function to get a person by id
+ * Route handling getting owner by id request
  * @param req {Request} - The Request object
  * @param res {Response} - The Response object
  * @returns {Promise<void>}
  */
-export async function getClient(req: Request, res: Response, next: NextFunction): Promise<void> {
- const id: number = parseInt(req.params.id);
+clientsController.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  const id: number = parseInt(req.params.id);
 
   try {
     const client: Client = await prisma.client.findUnique({
@@ -59,4 +61,6 @@ export async function getClient(req: Request, res: Response, next: NextFunction)
   } catch (err) {
     next(err); // forwards to error handler
   }
-}
+})
+
+export default clientsController;
