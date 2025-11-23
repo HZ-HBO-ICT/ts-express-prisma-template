@@ -2,8 +2,8 @@
 import Express, { Application, Request, Response, NextFunction } from 'express';
 import * as Dotenv from 'dotenv';
 Dotenv.config({ path: '.env' });
-import IndexRouter from './routes/index.js';
 import { errorHandler } from './middleware/errors/errorHandler.js';
+import router from './routes.ts';
 import helmet from 'helmet';
 
 const app: Application = Express();
@@ -16,7 +16,8 @@ app.use(helmet());
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 
-app.use('/', IndexRouter);
+// use custom router
+app.use(router);
 
 // 404 catch-all handler (middleware)
 app.use((req: Request, res: Response, next: NextFunction) => {
